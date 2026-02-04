@@ -1,0 +1,37 @@
+{
+  "atividades": [
+    {
+      "id": "1",
+      "titulo": "Planejar horário de estudo",
+      "categoria": "Organização",
+      "data": "2025-12-16",
+      "descricao": "Definir blocos de 25 min (Pomodoro) para matérias principais",
+      "curtidas": 3,
+      "horasEstudadas": 1.5,
+      "conteudoVisto": "Introdução e cronograma",
+      "finalizadoEm": null
+    },
+    {
+      "id": "2",
+      "titulo": "Revisão: Física - Cinemática",
+      "categoria": "Física",
+      "data": "2025-12-19",
+      "descricao": "Revisar conceitos de movimento uniforme e acelerado",
+      "curtidas": 1,
+      "horasEstudadas": 0,
+      "conteudoVisto": "",
+      "finalizadoEm": null
+    },
+    {
+      "id": "3",
+      "titulo": "Lista de exercícios: Álgebra",
+      "categoria": "Matemática",
+      "data": "2025-12-16",
+      "descricao": "Resolver 20 questões de polinômios e equações",
+      "curtidas": 0,
+      "horasEstudadas": 0,
+      "conteudoVisto": "",
+      "finalizadoEm": null
+    }
+  ]
+}
