@@ -1,64 +1,20 @@
 /* =========================================================
     CONSTANTS & GLOBALS
     ========================================================= */
-const STORAGE_KEY = "educonnect_dados_v1";
+const API_URL = "http://localhost:3000/atividades";
 
-// Modal and Form Selectors
+// Selectors (kept from previous version)
 const modalContainer = document.getElementById("modal-container");
 const form = document.getElementById("cadastro-form");
 const modalProgressoContainer = document.getElementById("modal-progresso-container");
 const progressoForm = document.getElementById("progresso-form");
 const conteudoContainer = document.getElementById("conteudo");
 const calendarContainer = document.getElementById("calendar-container");
-
-// Calendar Detail Modal Selectors
 const modalDetalhesContainer = document.getElementById("modal-detalhes-container");
 const detalhesLista = document.getElementById("detalhes-lista");
-
-// Filter and Category Selectors
 const filtroCategoriaSelect = document.getElementById("filtro-categoria");
 const datalistSugestoes = document.getElementById("categorias-sugestoes");
 const searchInput = document.getElementById("search");
-
-
-/* =========================================================
-    INITIAL DATA (Seed)
-    ========================================================= */
-const seedData = [
-  {
-    id: 1,
-    titulo: "Planejar horário de estudo",
-    categoria: "Organização",
-    data: "2025-12-16",
-    descricao: "Definir blocos de 25 min (Pomodoro) para matérias principais",
-    curtidas: 3,
-    horasEstudadas: 1.5,
-    conteudoVisto: "Introdução e cronograma",
-    finalizadoEm: null,
-  },
-  {
-    id: 2,
-    titulo: "Revisão: Física - Cinemática",
-    categoria: "Física",
-    data: "2025-12-19",
-    descricao: "Revisar conceitos de movimento uniforme e acelerado",
-    curtidas: 1,
-    horasEstudadas: 0,
-    conteudoVisto: "",
-    finalizadoEm: null,
-  },
-  {
-    id: 3,
-    titulo: "Lista de exercícios: Álgebra",
-    categoria: "Matemática",
-    data: "2025-12-16",
-    descricao: "Resolver 20 questões de polinômios e equações",
-    curtidas: 0,
-    horasEstudadas: 0,
-    conteudoVisto: "",
-    finalizadoEm: null,
-  },
-];
 
 /* =========================================================
     STATE
@@ -69,122 +25,147 @@ let filtroBusca = "";
 let filtroCategoria = "all";
 let ordemAtual = "none";
 let itemEditando = null;
-let itemProgressoAtual = null;
 let dataDetalheAtual = null;
-let dataCalendarioAtual = new Date(); // Stores current calendar month state
-
+let dataCalendarioAtual = new Date();
 
 /* =========================================================
-    STORAGE
+    API OPERATIONS (CRUD)
     ========================================================= */
-function salvarDados() {
+
+// GET: Load all items from API
+async function carregarDados() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+    const response = await fetch(API_URL);
+    if (!response.ok) throw new Error("Failed to fetch data");
+    dados = await response.json();
+    dispararRenderizacoes();
   } catch (err) {
-    console.error("Storage save error:", err);
+    console.error("Error loading data:", err);
+    conteudoContainer.innerHTML = `<p style="text-align:center; color:red;">Erro ao carregar dados da API.</p>`;
   }
 }
 
-function carregarDados() {
+// POST: Add new item
+async function adicionarItem(item) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      dados = [...seedData];
-      salvarDados();
-    } else {
-      const parsed = JSON.parse(raw);
-      // Ensure new progress fields exist on loaded items
-      dados = Array.isArray(parsed) ? parsed.map(item => ({
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...item,
+        curtidas: 0,
         horasEstudadas: 0,
         conteudoVisto: "",
-        finalizadoEm: null,
-        ...item,
-      })) : [...seedData];
-    }
+        finalizadoEm: null
+      })
+    });
+    if (response.ok) await carregarDados();
   } catch (err) {
-    dados = [...seedData];
+    console.error("Error adding item:", err);
+  }
+}
+
+// PATCH: Update specific fields (Likes, Progress, etc.)
+async function patchItem(id, updates) {
+    try {
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updates)
+        });
+        if (response.ok) await carregarDados();
+    } catch (err) {
+        console.error("Error updating item:", err);
+    }
+}
+
+// PUT: Full update (Edit Modal)
+async function atualizarItem(id, itemAtualizado) {
+    try {
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(itemAtualizado)
+        });
+        if (response.ok) await carregarDados();
+    } catch (err) {
+        console.error("Error updating item:", err);
+    }
+}
+
+// DELETE: Remove item
+async function excluirItem(id) {
+  try {
+    const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+    if (response.ok) await carregarDados();
+  } catch (err) {
+    console.error("Error deleting item:", err);
   }
 }
 
 /* =========================================================
-    DATA OPERATIONS
+    UI UPDATE LOGIC
     ========================================================= */
-function gerarId() {
-  const max = dados.reduce((acc, it) => (it.id > acc ? it.id : acc), 0);
-  return max + 1;
-}
 
 function dispararRenderizacoes() {
-  salvarDados();
-  
-  // Update dynamic list of categories after data change
   atualizarCategoriasUnicas();
-
   renderizarLista();
   renderizarDashboard();
   
-  // Update calendar if active
   if (document.getElementById('view-calendario').classList.contains('active')) {
     renderizarCalendario(dataCalendarioAtual); 
   }
-  // Update details modal if open
   if (!modalDetalhesContainer.classList.contains('hidden') && dataDetalheAtual) {
     renderizarDetalhesAtividades(dataDetalheAtual);
   }
 }
 
+/* =========================================================
+    EVENT HANDLERS (Adapted for Async)
+    ========================================================= */
+
 function adicionarLike(id) {
-  const item = dados.find((d) => d.id === id);
+  const item = dados.find((d) => d.id == id);
   if (!item) return;
-  item.curtidas += 1;
-  dispararRenderizacoes();
+  patchItem(id, { curtidas: item.curtidas + 1 });
 }
 
-function excluirItem(id) {
-  dados = dados.filter((d) => d.id !== id);
-  dispararRenderizacoes(); 
+function setupForm() {
+    if (!form) return;
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const titulo = document.getElementById("titulo").value.trim();
+        const categoria = document.getElementById("categoria").value.trim();
+        const data = document.getElementById("data").value;
+        const descricao = document.getElementById("descricao").value.trim();
+
+        const payload = { titulo, categoria, data, descricao };
+
+        if (itemEditando) {
+            // Merge with existing fields to not lose progress data during a PUT
+            const fullUpdatedItem = { ...itemEditando, ...payload };
+            await atualizarItem(itemEditando.id, fullUpdatedItem);
+        } else {
+            await adicionarItem(payload);
+        }
+        fecharModal();
+    });
 }
 
-function adicionarItem({ titulo, categoria, data, descricao }) {
-  const novo = {
-    id: gerarId(),
-    titulo: titulo.trim(),
-    categoria: categoria.trim(),
-    data: data || new Date().toISOString().slice(0, 10),
-    descricao: descricao.trim(),
-    curtidas: 0,
-    horasEstudadas: 0,
-    conteudoVisto: "",
-    finalizadoEm: null,
-  };
-
-  dados.push(novo);
-  dispararRenderizacoes(); 
+function setupProgressoForm() {
+    if (!progressoForm) return;
+    progressoForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("progresso-item-id").value;
+        const updates = {
+            horasEstudadas: parseFloat(document.getElementById("horas-estudadas").value),
+            conteudoVisto: document.getElementById("conteudo-visto").value.trim(),
+            finalizadoEm: document.getElementById("finalizado-em-data").value || null
+        };
+        await patchItem(id, updates);
+        fecharModalProgresso();
+    });
 }
-
-function atualizarItem(id, dadosAtualizados) {
-  const item = dados.find((d) => d.id === id);
-  if (!item) return;
-
-  item.titulo = dadosAtualizados.titulo.trim();
-  item.categoria = dadosAtualizados.categoria.trim();
-  item.data = dadosAtualizados.data;
-  item.descricao = dadosAtualizados.descricao.trim();
-
-  dispararRenderizacoes(); 
-}
-
-function atualizarProgressoItem(id, dadosAtualizados) {
-  const item = dados.find((d) => d.id === id);
-  if (!item) return;
-
-  item.horasEstudadas = parseFloat(dadosAtualizados.horasEstudadas);
-  item.conteudoVisto = dadosAtualizados.conteudoVisto.trim();
-  item.finalizadoEm = dadosAtualizados.finalizadoEm || null;
-
-  dispararRenderizacoes();
-}
-
 /* =========================================================
     CATEGORY & FILTER LOGIC
     ========================================================= */
