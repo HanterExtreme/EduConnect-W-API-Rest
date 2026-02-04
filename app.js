@@ -25,6 +25,7 @@ let filtroBusca = "";
 let filtroCategoria = "all";
 let ordemAtual = "none";
 let itemEditando = null;
+let itemProgressoAtual = null;
 let dataDetalheAtual = null;
 let dataCalendarioAtual = new Date();
 
@@ -158,13 +159,22 @@ function setupProgressoForm() {
         e.preventDefault();
         const id = document.getElementById("progresso-item-id").value;
         const updates = {
-            horasEstudadas: parseFloat(document.getElementById("horas-estudadas").value),
+            horasEstudadas: parseFloat(document.getElementById("horas-estudadas").value) || 0,
             conteudoVisto: document.getElementById("conteudo-visto").value.trim(),
             finalizadoEm: document.getElementById("finalizado-em-data").value || null
         };
         await patchItem(id, updates);
         fecharModalProgresso();
     });
+
+    const btnConcluido = document.getElementById("btn-marcar-concluido");
+    if (btnConcluido) {
+        btnConcluido.addEventListener("click", () => {
+            const campoData = document.getElementById("finalizado-em-data");
+            campoData.value = new Date().toISOString().slice(0, 10);
+            progressoForm.dispatchEvent(new Event('submit')); // Dispara o salvamento
+        });
+    }
 }
 /* =========================================================
     CATEGORY & FILTER LOGIC
@@ -477,7 +487,7 @@ function criarCard(item) {
   // DELETE Listener with Confirmation
   const btnDelete = card.querySelector(".btn-delete");
   btnDelete.addEventListener("click", function handler() {
-    const itemId = parseInt(this.dataset.id);
+    const itemId = this.dataset.id;
 
     if (this.classList.contains('confirming-delete')) {
       // Second click: Delete
