@@ -1,0 +1,546 @@
+/* =========================================
+    1. VARIÁVEIS & TEMA (MODERNO)
+========================================= */
+:root {
+  --font-main: 'Outfit', sans-serif;
+
+  /* Cores Light Mode */
+  --bg-body: #f8fafc; /* Fundo geral muito suave */
+  --bg-sidebar: #ffffff; /* Sidebar branca */
+  --bg-card: #ffffff;
+  
+  --text-primary: #1e293b; /* Escuro profundo */
+  --text-secondary: #64748b; /* Cinza azulado */
+  --border-color: #e2e8f0; /* Bordas sutis */
+  
+  /* Cores de Ação */
+  --primary: #4f46e5; /* Índigo moderno */
+  --primary-hover: #4338ca;
+  --primary-light: #e0e7ff; /* Fundo de item ativo */
+  
+  /* Estados (Importante para a Barra de Progresso) */
+  --progress-alert: #f59e0b; /* Laranja (Pendente) */
+  --progress-in-progress: #3b82f6; /* Azul (Em andamento) */
+  --status-finished-color: #10b981;/* Verde (Concluído) */
+  
+  /* Sombras */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+  --shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] {
+  --bg-body: #0f172a; /* Azul noite */
+  --bg-sidebar: #1e293b; /* Sidebar cinza escuro */
+  --bg-card: #1e293b;
+  
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  
+  --primary: #6366f1;
+  --primary-hover: #818cf8;
+  --primary-light: rgba(99, 102, 241, 0.15);
+  
+  /* Cores de progresso ajustadas para brilho no dark mode */
+  --progress-alert: #fb923c;
+  --progress-in-progress: #60a5fa;
+  --status-finished-color: #34d399;
+}
+
+/* =========================================
+    2. RESET & GLOBAL
+========================================= */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-body);
+  color: var(--text-primary);
+  height: 100vh;
+  overflow: hidden; /* Importante para o layout de sidebar */
+}
+
+/* Base de Inputs e Botões */
+input, select, textarea {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.7rem;
+    border-radius: 8px;
+    font-family: inherit;
+    width: 100%;
+}
+/* AJUSTE: Usar outline-offset para evitar deslocamento de elementos */
+input:focus, textarea:focus { 
+    outline: 2px solid var(--primary); 
+    outline-offset: 1px;
+    border-color: transparent; 
+}
+
+button { cursor: pointer; border: none; font-family: inherit; transition: 0.2s; border-radius: 8px; }
+
+/* Botões Padrão */
+.btn-primary { background: var(--primary); color: white; padding: 0.7rem 1.2rem; font-weight: 600; }
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+.btn-secondary { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 0.7rem 1.2rem; }
+.btn-secondary:hover { background: var(--border-color); color: var(--text-primary); }
+
+/* Utilitários */
+.hidden { display: none !important; }
+
+
+/* =========================================
+    3. LAYOUT GERAL (GRID SIDEBAR)
+========================================= */
+.app-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr; /* Sidebar fixa, resto fluido */
+  height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  z-index: 10;
+}
+
+.sidebar-header { margin-bottom: 2rem; }
+.sidebar-header h1 { font-size: 1.5rem; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; }
+.sidebar-header p { font-size: 0.85rem; color: var(--text-secondary); }
+
+.sidebar-nav ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+
+.nav-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-align: left;
+  border-radius: 8px;
+}
+.nav-btn:hover { background: var(--bg-body); color: var(--text-primary); }
+.nav-btn.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.nav-btn .icon { font-size: 1.2rem; }
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.theme-btn {
+    width: 100%; /* Botão ocupa a largura da sidebar */
+    background: var(--bg-body); /* Leve destaque do fundo */
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centraliza conteúdo */
+    gap: 12px;
+    
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.theme-btn:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Área Principal */
+.main-content {
+  overflow-y: auto; /* Scroll apenas aqui */
+  padding: 2rem 3rem;
+  position: relative;
+}
+.mobile-header { display: none; } /* Escondido em desktop */
+
+
+/* =========================================
+    4. DASHBOARD & BANNER
+========================================= */
+.welcome-banner {
+  background: linear-gradient(135deg, var(--primary), #818cf8);
+  border-radius: 16px;
+  padding: 2rem;
+  color: white;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+}
+.welcome-content h2 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+.welcome-content p { opacity: 0.9; }
+
+.dashboard-grid {
+  display: grid;
+  /* auto-fit obriga os cards a esticarem para preencher o espaço vazio */
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2rem; /* Espaço maior entre os cards */
+  margin-top: 1rem;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  padding: 2rem 1.5rem; /* Mais espaçamento interno */
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  
+  /* Flex Column para centralizar tudo verticalmente */
+  display: flex;
+  flex-direction: column; 
+  align-items: center; /* Centraliza horizontalmente */
+  justify-content: center; /* Centraliza verticalmente */
+  text-align: center; /* Garante que o texto fique no meio */
+  
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%; /* Garante altura igual */
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* VERSÃO FINAL E CORRIGIDA DOS ÍCONES E TEXTOS DE ESTATÍSTICAS */
+.stat-icon {
+    /* Dimensões otimizadas para o layout centralizado */
+    width: 60px; height: 60px; 
+    border-radius: 50%; /* Mantido o arredondamento total */
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 1rem; /* Espaço entre ícone e texto */
+}
+
+/* Cores específicas para cada ícone */
+.stat-icon.blue { background: #e0f2fe; color: #0284c7; }
+.stat-icon.green { background: #dcfce7; color: #16a34a; }
+.stat-icon.purple { background: #f3e8ff; color: #9333ea; }
+.stat-icon.orange { background: #ffedd5; color: #ea580c; }
+[data-theme="dark"] .stat-icon { background-opacity: 0.2; } /* Ajuste de brilho para dark mode */ 
+
+.stat-info h3 {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.stat-info p {
+    font-size: 2.2rem; /* Número maior */
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+/* =========================================
+    5. SEÇÃO DE ESTUDOS & FILTROS
+========================================= */
+.section-header-row {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
+}
+.text-group h2 { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); }
+.text-group p { color: var(--text-secondary); }
+
+.filters-card {
+    background: var(--bg-card);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+    display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;
+    box-shadow: var(--shadow-sm);
+}
+.search-wrapper { flex: 1; min-width: 200px; }
+.filters-actions { display: flex; gap: 1rem; align-items: center; }
+.sort-buttons button { background: var(--bg-body); padding: 0.6rem; border: 1px solid var(--border-color); }
+.sort-buttons button:hover { border-color: var(--primary); color: var(--primary); }
+.sort-buttons button.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+/* =========================================
+    6. CARDS (COM A BARRA DE PROGRESSO CORRIGIDA)
+========================================= */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  width: 100%; 
+}
+
+.card {
+  background-color: var(--bg-card);
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--primary-light);
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0.8rem 0 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.badge-category {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: 20px; /* Mais arredondado */
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.card-date {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: flex; align-items: center; gap: 5px;
+  margin-bottom: 1rem;
+}
+
+.card-desc {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  flex-grow: 1;
+}
+
+/* --- BARRA DE PROGRESSO --- */
+.card-progress-info {
+    margin-top: auto; /* Empurra para o fundo antes do footer */
+    width: 100%;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.progress-bar-container {
+    height: 8px;
+    background-color: var(--bg-body); /* Fundo da trilha */
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    transition: width 0.4s ease-out, background-color 0.2s;
+    border-radius: 10px;
+}
+
+/* Classes funcionais */
+.progress-pending {
+    background-color: var(--progress-alert);
+    width: 5% !important; /* Mínimo visual para mostrar que existe */
+}
+
+.progress-in-progress {
+    background-color: var(--progress-in-progress);
+}
+
+.progress-finished {
+    background-color: var(--status-finished-color);
+    width: 100% !important;
+}
+
+.badge-finished {
+    color: var(--status-finished-color);
+    font-weight: 700;
+    font-size: 0.8rem;
+    margin-left: auto;
+}
+/* -------------------------------------------------- */
+
+.card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border-color);
+}
+
+.likes { display: flex; align-items: center; gap: 5px; font-weight: 600; color: var(--text-secondary); }
+.btn-like-icon { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
+.btn-like-icon:hover { transform: scale(1.2); }
+.btn-like-icon.liked-effect { color: #ef4444; animation: pop 0.3s; }
+@keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1.2); }
+}
+
+.actions button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    background: transparent;
+    color: var(--text-secondary);
+}
+.actions button:hover { color: var(--primary); background: var(--bg-body); }
+.btn-delete:hover { color: #ef4444 !important; }
+
+/* =========================================
+    7. CALENDÁRIO
+========================================= */
+.calendar-wrapper {
+    background: var(--bg-card);
+    padding: 2rem;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.calendar-header h3 { font-size: 1.4rem; font-weight: 700; text-transform: capitalize; }
+
+.calendar-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
+}
+.calendar-day-name { font-weight: 600; color: var(--text-secondary); text-align: center; margin-bottom: 10px; }
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 12px;
+    cursor: default;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+.calendar-day:hover:not(.empty) { background: var(--bg-body); }
+.calendar-day.today { border-color: var(--primary); color: var(--primary); font-weight: 700; }
+
+.calendar-day.has-activity {
+    background-color: var(--primary-light);
+    color: var(--primary);
+    position: relative;
+    cursor: pointer;
+}
+/* Bolinha indicadora */
+.calendar-day.has-activity::after {
+    content: ''; position: absolute; bottom: 5px; width: 4px; height: 4px; background: var(--primary); border-radius: 50%;
+}
+
+/* =========================================
+    8. MODAIS
+========================================= */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+    z-index: 1000; display: flex; justify-content: center; align-items: center;
+}
+.modal-box {
+    background: var(--bg-card); width: 90%; max-width: 500px;
+    border-radius: 16px; padding: 2rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-color);
+    position: relative;
+}
+.btn-close-modal {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.8rem; 
+    line-height: 1;
+    cursor: pointer;
+    
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-close-modal:hover {
+    background-color: var(--border-color); 
+    color: var(--primary); 
+    transform: rotate(90deg); 
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.modal-footer { margin-top: 2rem; display: flex; justify-content: flex-end; gap: 10px; }
+
+/* Detalhes do Calendário (Modal) */
+.detalhes-lista { max-height: 400px; overflow-y: auto; padding-right: 10px; } /* Adiciona scroll se for longo */
+.detalhe-item { padding: 1rem 0; border-bottom: 1px dashed var(--border-color); }
+.detalhe-item:last-child { border-bottom: none; }
+.detalhe-item h4 { color: var(--primary); margin-bottom: 0.2rem; font-weight: 600; }
+.detalhe-item-desc { font-size: 0.9rem; margin-bottom: 0.5rem; }
+.detalhe-item-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
+.detalhe-concluido { color: var(--status-finished-color); font-weight: 700; font-size: 0.8rem; }
+.detalhe-pendente { color: var(--progress-alert); font-weight: 700; font-size: 0.8rem; }
+.btn-open-progresso { padding: 0.3rem 0.6rem !important; font-size: 0.75rem !important; margin-left: auto; }
+
+
+/* =========================================
+    9. RESPONSIVIDADE (MOBILE)
+========================================= */
+@media (max-width: 768px) {
+  .app-layout { grid-template-columns: 1fr; }
+  
+  .sidebar { display: none; } /* Esconde sidebar desktop */
+  
+  /* Menu Mobile Inferior Fixo */
+  .sidebar-nav {
+      position: fixed; bottom: 0; left: 0; width: 100%;
+      background: var(--bg-card); border-top: 1px solid var(--border-color);
+      z-index: 100; padding: 10px; display: block;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+  }
+  .sidebar-nav ul { flex-direction: row; justify-content: space-around; }
+  /* Botões menores no mobile */
+  .nav-btn { flex-direction: column; gap: 5px; font-size: 0.7rem; justify-content: center; text-align: center; padding: 8px; }
+  
+  .main-content { padding: 1.5rem; padding-bottom: 5rem; } /* Espaço pro menu */
+  
+  .mobile-header {
+      /* Visível no mobile, com o botão de tema */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem; 
+      margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+      background: var(--bg-card); 
+      border-bottom: 1px solid var(--border-color);
+  }
+  .mobile-header h2 { font-size: 1.2rem; color: var(--primary); }
+  /* Botão de tema no mobile header */
+  .mobile-header .theme-btn { 
+      width: auto; 
+      padding: 0.5rem 0.7rem; 
+      font-size: 0.9rem;
+  }
+  
+  .filters-card { flex-direction: column; align-items: stretch; }
+  .filters-actions { flex-direction: column; }
+  .section-header-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .section-header-row button { width: 100%; }
+
+  .dashboard-grid { gap: 1rem; } /* Diminuir o gap no mobile */
+}
