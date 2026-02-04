@@ -408,80 +408,6 @@ function setupModalListeners() {
     }
 }
 
-function setupProgressoForm() {
-    if (!progressoForm) return;
-
-    // Submission Listener
-    progressoForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        
-        const id = parseInt(document.getElementById("progresso-item-id").value);
-        const horas = document.getElementById("horas-estudadas").value;
-        const conteudo = document.getElementById("conteudo-visto").value;
-        const dataFinal = document.getElementById("finalizado-em-data").value;
-
-        if (id) {
-            atualizarProgressoItem(id, {
-                horasEstudadas: horas,
-                conteudoVisto: conteudo,
-                finalizadoEm: dataFinal,
-            });
-            fecharModalProgresso();
-        }
-    });
-
-    // "Mark as Completed" Listener
-    const btnConcluido = document.getElementById("btn-marcar-concluido");
-    if (btnConcluido) {
-        btnConcluido.addEventListener("click", () => {
-            const dataFinalElement = document.getElementById("finalizado-em-data");
-            
-            if (dataFinalElement) {
-                const today = new Date().toISOString().slice(0, 10);
-                dataFinalElement.value = today;
-            }
-
-            progressoForm.dispatchEvent(new Event('submit'));
-        });
-    }
-}
-
-function setupForm() {
-    const msg = document.getElementById("form-msg");
-    if (!form) return;
-
-    // Internal function to display messages
-    const showMessage = (text, type) => {
-        if(!msg) return;
-        msg.textContent = text;
-        msg.style.color = type === "success" ? "var(--primary-color)" : "red";
-    };
-
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const titulo = document.getElementById("titulo").value.trim();
-        const categoria = document.getElementById("categoria").value.trim();
-        const data = document.getElementById("data").value;
-        const descricao = document.getElementById("descricao").value.trim();
-
-        if (titulo.length < 3) return showMessage("Título deve ter min. 3 caracteres", "error");
-        
-        if (itemEditando) {
-            atualizarItem(itemEditando.id, { titulo, categoria, data, descricao });
-            showMessage("Item atualizado!", "success");
-        } else {
-            adicionarItem({ titulo, categoria, data, descricao });
-            showMessage("Item criado!", "success");
-        }
-
-        setTimeout(() => {
-            fecharModal();
-            if(msg) msg.textContent = ""; 
-        }, 1000);
-    });
-}
-
 /* =========================================================
     CARD FACTORY
     ========================================================= */
@@ -902,20 +828,11 @@ function initThemeToggle() {
 }
     
 document.addEventListener("DOMContentLoaded", () => {
-  carregarDados();
-  initThemeToggle();
-  
-  // Initialize category list and rebuild filters
-  atualizarCategoriasUnicas(); 
-  
-  setupModalListeners(); 
-  setupProgressoForm();
-  setupForm();
-  
-  setupNavigation();
-  setupFiltros();
-  
-  // Render study list and initial dashboard
-  renderizarLista();
-  renderizarDashboard(); 
+    carregarDados();
+    initThemeToggle();
+    setupModalListeners(); 
+    setupProgressoForm();
+    setupForm();
+    setupNavigation();
+    setupFiltros();
 });
